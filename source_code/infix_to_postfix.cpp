@@ -45,7 +45,8 @@ string postfix(string s){
         }
 
         // Nếu là toán tử thì in ra các phần tử trong stack có thứ tự ưu tiên
-        // lớn hơn hoặc bằng toán tử đang xét, sau cùng đẩy toán tử đang xét vào stack
+        // lớn hơn hoặc bằng toán tử đang xét hoặc cho đến khi stack rỗng,
+				// sau cùng đẩy toán tử đang xét vào stack
         else{
             while (!mystack.empty() && precedence(mystack.top()) >= precedence(s[i])){
                 res += mystack.top();
@@ -55,7 +56,7 @@ string postfix(string s){
         }
     }
 
-    // Khi lặp lại các bước trên cuối cùng, in ra tất cả những gì còn lại trong stack
+    // Khi lặp lại xong các bước trên, cuối cùng in ra tất cả những gì còn lại trong stack
     while(!mystack.empty()){
         res += mystack.top();
         mystack.pop();
