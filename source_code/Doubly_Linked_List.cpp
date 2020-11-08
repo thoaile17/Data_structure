@@ -5,6 +5,7 @@ using namespace std;
 struct Node{
   char data;
   Node* next;
+  Node* prev;
 };
 
 // Thêm Node vào đầu List
@@ -23,6 +24,7 @@ void PushFront(Node* &head, char c){
   // lúc này Node mới ở vị trí đầu List,
   // Ta gán Head = vị trí Node mới
   new_node->next = head;
+  head->prev = new_node;
   head = new_node;
 }
 
@@ -46,6 +48,7 @@ void PushBack(Node* &head, char c){
 
   // Liên kết Node mới vào cuối List
   last->next = new_node;
+  new_node->prev = last;
 }
 
 // Thêm Node vào sau Node đầu tiên trong List có giá trị bằng x
@@ -64,8 +67,12 @@ void PushNodeAfterNode(Node* &head, char x, char c){
 
     // Liên kết Node mới vào
     Node* tmp = curr->next;
+
     curr->next = new_node;
+    new_node->prev = curr;
+
     new_node->next = tmp;
+    tmp->prev = new_node;
   }
 }
 
@@ -75,6 +82,7 @@ void PopFront(Node* &head){
   if (head != NULL){
     Node* tmp = head; // Giữ lại vị trí head cũ
     head = head->next; // Cập nhật lại vị trí head
+    head->prev = NULL;
     delete tmp; // Xóa head cũ
   }
 }
@@ -91,13 +99,13 @@ void PopBack(Node* &head){
 
     // Tìm Node cuối List và Node trước nó
     Node* last = head;
-    Node* prev = head; // Node này để lưu vị trí phía trước của Node cuối
     while(last->next != NULL){
-      prev = last;
       last = last->next;
     }
 
-    prev->next = NULL;
+    Node* tmp = last->prev;
+    tmp->next = NULL;
+
     delete last;
   }
 }
@@ -114,21 +122,27 @@ void Delete(Node* &head, char x){
 
 		// Tìm Node
 		Node* curr = head;
-		Node* prev = NULL; // Để lưu vị trí Node phía trước Node cần xóa
 		while(curr != NULL && curr->data != x){
-			prev = curr;
 			curr = curr->next;
 		}
 
 		// Nếu tìm thấy Node
 		if (curr != NULL){
-			// Nếu prev = NULL => List chỉ có một Node
-			if (prev == NULL){
-				head = NULL;
-			}else{
-				prev->next = curr->next;
-				delete curr;
-			}
+      if (curr->prev == NULL && curr->next == NULL){ // List có 1 phần tử
+          head = NULL;
+      }else{
+        if (curr->next == NULL){ // Phần tử tìm được ở cuối List
+            PopBack(head);
+        }else{
+            Node* CurrPrev = curr->prev; // Node trước của Node cần xóa
+            Node* CurrNext = curr->next; // Node sau của Node cần xóa
+
+            CurrPrev->next = CurrNext;
+            CurrNext->prev = CurrPrev;
+
+            delete curr;
+        }
+      }
 		}
 	}
 }

@@ -7,6 +7,21 @@ struct Node{
   Node* next;
 };
 
+Node* FindLast(Node* head){
+  Node* curr = head;
+
+  // Nếu List chỉ có một phần tử
+  if (head->next == head){
+    return head;
+  }
+
+  // List có nhiều phần tử
+  while(curr->next != head){
+      curr = curr->next;
+  }
+  return curr;
+}
+
 // Thêm Node vào đầu List
 void PushFront(Node* &head, char c){
   // Tạo Node mới
@@ -16,13 +31,16 @@ void PushFront(Node* &head, char c){
   // Nếu List rỗng
   if (head == NULL){
     head = new_node;
+    head->next = head;
     return;
   }
 
   // Liên kết Head vào sau Node mới,
   // lúc này Node mới ở vị trí đầu List,
   // Ta gán Head = vị trí Node mới
+  Node* last = FindLast(head);
   new_node->next = head;
+  last->next = new_node;
   head = new_node;
 }
 
@@ -35,25 +53,28 @@ void PushBack(Node* &head, char c){
   // Nếu List rỗng
   if (head == NULL){
     head = new_node;
+    head->next = head;
     return;
   }
 
   // Tìm Node ở cuối list
-  Node* last = head;
-  while(last->next != NULL){
-    last = last->next;
-  }
+  Node* last = FindLast(head);
 
   // Liên kết Node mới vào cuối List
   last->next = new_node;
+  new_node->next = head;
 }
 
 // Thêm Node vào sau Node đầu tiên trong List có giá trị bằng x
 void PushNodeAfterNode(Node* &head, char x, char c){
   // Tìm Node đầu tiên trong List có giá trị bằng x
   Node* curr = head;
-  while(curr != NULL && curr->data != x){
+  while(curr->data != x){
     curr = curr->next;
+    if (curr == head){
+      curr = NULL;
+      break;
+    }
   }
 
   // Nếu tìm thấy thì thực hiện chèn
@@ -73,8 +94,17 @@ void PushNodeAfterNode(Node* &head, char x, char c){
 void PopFront(Node* &head){
   // Nếu List không rỗng
   if (head != NULL){
+
+    // List chỉ có một phần tử
+    if (head->next == head){
+      head = NULL;
+      return;
+    }
+
     Node* tmp = head; // Giữ lại vị trí head cũ
+    Node* last = FindLast(head);
     head = head->next; // Cập nhật lại vị trí head
+    last->next = head; // Tạo vòng từ Node Last với Head mới
     delete tmp; // Xóa head cũ
   }
 }
@@ -83,8 +113,9 @@ void PopFront(Node* &head){
 void PopBack(Node* &head){
   // Nếu List không rỗng
   if (head != NULL){
+
     // Nếu List chỉ có một phần tử
-    if (head->next == NULL){
+    if (head->next == head){
       PopFront(head);
       return;
     }
@@ -92,12 +123,13 @@ void PopBack(Node* &head){
     // Tìm Node cuối List và Node trước nó
     Node* last = head;
     Node* prev = head; // Node này để lưu vị trí phía trước của Node cuối
-    while(last->next != NULL){
+
+    while(last->next != head){
       prev = last;
       last = last->next;
     }
 
-    prev->next = NULL;
+    prev->next = head;
     delete last;
   }
 }
@@ -115,9 +147,15 @@ void Delete(Node* &head, char x){
 		// Tìm Node
 		Node* curr = head;
 		Node* prev = NULL; // Để lưu vị trí Node phía trước Node cần xóa
-		while(curr != NULL && curr->data != x){
+		while(curr->data != x){
 			prev = curr;
 			curr = curr->next;
+
+			// Quay về đầu thì dừng lại
+			if (curr->next == head){
+        curr = NULL;
+        break;
+			}
 		}
 
 		// Nếu tìm thấy Node
@@ -136,9 +174,12 @@ void Delete(Node* &head, char x){
 // In List
 void PrintList(Node* head){
   Node* curr = head;
-  while(curr != NULL){
+  while(curr){
     cout << curr->data << " ";
     curr = curr->next;
+    if (curr == head){
+      break;
+    }
   }
   cout << endl;
 }
@@ -178,8 +219,8 @@ int main(){
   PopBack(head);
   PrintList(head);
 
-  // Xóa Node bất kỳ
   cout << "Remove node D: \n";
+  // Xóa Node bất kỳ
   Delete(head,'D');
   PrintList(head);
 
